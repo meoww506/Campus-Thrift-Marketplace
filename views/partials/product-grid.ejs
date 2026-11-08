@@ -1,0 +1,12 @@
+<div class="product-grid">
+<% if (!items.length) { %><div class="empty-state">No items found yet. Check back soon.</div><% } %>
+<% items.forEach(item => { %>
+  <article class="product-card">
+    <a class="product-image" href="/products/<%= item.id %>">
+      <% if (item.image_path) { %><img src="<%= item.image_path %>" alt="<%= item.title %>"><% } else { %><div class="image-placeholder"><span>✧</span><small>CAMPUS FIND</small></div><% } %>
+      <span class="condition-tag"><%= item.item_condition %></span>
+    </a>
+    <div class="product-info"><small class="product-category"><%= item.category_name || 'Campus item' %></small><a class="product-title" href="/products/<%= item.id %>"><%= item.title %></a><div class="product-bottom"><strong>Nu. <%= Number(item.price).toLocaleString('en-IN') %></strong><small>by <%= item.seller_name || 'Campus member' %></small></div></div>
+  </article>
+<% }) %>
+</div>

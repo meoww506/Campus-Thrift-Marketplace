@@ -1,0 +1,5 @@
+<%- include('partials/header', {title:'Wishlist'}) %>
+<div class="page-title-row"><div><span class="eyebrow">SAVED FOR LATER</span><h1>Your wishlist</h1><p>Keep interesting finds close while you decide.</p></div></div>
+<%- include('partials/product-grid', {items}) %>
+<% if (items.length) { %><div class="mt-4 small text-muted">To remove an item, open its detail page and manage your saved items from there.</div><% } %>
+<%- include('partials/footer') %>

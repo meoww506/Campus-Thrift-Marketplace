@@ -1,0 +1,32 @@
+{
+  "name": "campus-thrift-marketplace",
+  "version": "1.0.0",
+  "description": "A Bhutan-inspired campus second-hand marketplace built with Express, EJS and PostgreSQL.",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "db:init": "node scripts/init-db.js",
+    "db:seed": "node scripts/seed.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "connect-pg-simple": "^10.0.0",
+    "dotenv": "^16.4.7",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "express-session": "^1.18.1",
+    "express-validator": "^7.2.1",
+    "helmet": "^8.0.0",
+    "method-override": "^3.0.0",
+    "multer": "^2.5.0",
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "filelist": "^2.0.2",
+    "nodemon": "^3.1.7"
+  },
+ "overrides": {
+  "minimatch": "^11.0.1"
+}
+}

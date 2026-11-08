@@ -1,0 +1,4 @@
+<%- include('../partials/header', {title:'Manage users'}) %>
+<div class="page-title-row"><div><span class="eyebrow">ADMIN / USERS</span><h1>Campus users</h1><p>Manage access to the marketplace.</p></div><a href="/admin" class="btn btn-outline-dark">← Dashboard</a></div>
+<div class="table-responsive"><table class="table align-middle marketplace-table"><thead><tr><th>Name</th><th>Email</th><th>Type</th><th>Status</th><th>Action</th></tr></thead><tbody><% users.forEach(u=> { %><tr><td><strong><%= u.full_name %></strong></td><td><%= u.email %></td><td><%= u.user_type %></td><td><span class="status-pill"><%= u.is_suspended?'suspended':'active' %></span></td><td><form method="POST" action="/admin/users/<%= u.id %>/toggle"><button class="btn btn-sm <%= u.is_suspended?'btn-success':'btn-outline-danger' %>"><%= u.is_suspended?'Reactivate':'Suspend' %></button></form></td></tr><% }) %></tbody></table></div>
+<%- include('../partials/footer') %>

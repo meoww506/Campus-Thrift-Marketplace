@@ -1,0 +1,27 @@
+<%- include('partials/header', {title:'My account'}) %>
+<div class="page-title-row"><div><span class="eyebrow">YOUR CAMPUS CORNER</span><h1>Hello, <%= currentUser.full_name.split(' ')[0] %>.</h1><p>Manage your listings and keep track of purchase requests.</p></div><a class="btn btn-maroon" href="/sell">＋ List an item</a></div>
+<section class="dashboard-section"><div class="section-heading"><h2>My listings <span class="count-pill"><%= listings.length %></span></h2></div>
+<div class="table-responsive"><table class="table align-middle marketplace-table"><thead><tr><th>Item</th><th>Price</th><th>Status</th><th>Action</th></tr></thead><tbody>
+<% listings.forEach(item=> { %><tr><td><strong><%= item.title %></strong><small class="d-block text-muted">Listed <%= new Date(item.created_at).toLocaleDateString() %></small></td><td>Nu. <%= Number(item.price).toLocaleString('en-IN') %></td><td><span class="status-pill status-<%= item.status %>"><%= item.status %></span></td><td><% if (['available','removed'].includes(item.status)) { %><form method="POST" action="/listings/<%= item.id %>/status"><input type="hidden" name="status" value="<%= item.status==='available'?'removed':'available' %>"><button class="btn btn-sm btn-outline-dark"><%= item.status==='available'?'Remove':'Relist' %></button></form><% } else { %>—<% } %></td></tr><% }) %>
+<% if (!listings.length) { %><tr><td colspan="4" class="text-muted">You have not listed anything yet.</td></tr><% } %>
+</tbody></table></div></section>
+<section class="dashboard-section"><div class="section-heading"><h2>Incoming purchase requests <span class="count-pill"><%= requests.filter(r=>r.status==='pending').length %> pending</span></h2></div>
+<div class="table-responsive"><table class="table align-middle marketplace-table"><thead><tr><th>Item</th><th>Buyer</th><th>Message</th><th>Status / action</th></tr></thead><tbody>
+<% requests.forEach(r=> { %><tr><td><strong><%= r.title %></strong><small class="d-block">Nu. <%= Number(r.price).toLocaleString('en-IN') %></small></td><td><%= r.buyer_name %></td><td><%= r.message || 'No message' %></td><td>
+<span class="status-pill status-<%= r.status %>"><%= r.status %></span>
+<small class="d-block mt-1"><strong>Payment:</strong> <%= r.payment_method==='cash'?'Cash':'Mobile banking / QR' %></small>
+<small class="d-block"><strong>Payment status:</strong> <%= r.payment_status.replaceAll('_',' ') %></small>
+<% if (r.status==='pending') { %>
+<div class="d-flex gap-1 mt-2">
+<form method="POST" action="/requests/<%= r.id %>/status"><input type="hidden" name="status" value="accepted"><button class="btn btn-sm btn-success">Accept</button></form>
+<form method="POST" action="/requests/<%= r.id %>/status"><input type="hidden" name="status" value="rejected"><button class="btn btn-sm btn-outline-danger">Reject</button></form>
+</div>
+<% } else if (r.status==='accepted' && r.payment_status==='buyer_marked_paid') { %>
+<form method="POST" action="/requests/<%= r.id %>/payment" class="mt-2"><input type="hidden" name="action" value="seller_confirm"><button class="btn btn-sm btn-success">Confirm payment received</button></form>
+<% } else if (r.status==='accepted' && r.payment_status==='confirmed') { %>
+<form method="POST" action="/requests/<%= r.id %>/status" class="mt-2"><input type="hidden" name="status" value="completed"><button class="btn btn-sm btn-maroon">Mark completed</button></form>
+<% } %>
+</td></tr><% }) %>
+<% if (!requests.length) { %><tr><td colspan="4" class="text-muted">No purchase requests yet.</td></tr><% } %>
+</tbody></table></div><a href="/my-requests" class="small">View requests you have made →</a></section>
+<%- include('partials/footer') %>

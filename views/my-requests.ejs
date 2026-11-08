@@ -1,0 +1,29 @@
+<%- include('partials/header', {title:'My purchase requests'}) %>
+<div class="page-title-row"><div><span class="eyebrow">BUYER ACTIVITY</span><h1>My purchase requests</h1><p>Track seller replies, payment and campus handovers.</p></div><a href="/products" class="btn btn-outline-dark">Keep exploring</a></div>
+<div class="request-list"><% requests.forEach(r=> { %>
+<article class="request-card">
+  <div>
+    <span class="eyebrow">REQUEST #<%= r.id %></span><h3><%= r.title %></h3>
+    <p>Seller: <%= r.seller_name %> · Nu. <%= Number(r.price).toLocaleString('en-IN') %></p>
+    <p class="mb-1"><strong>Payment:</strong> <%= r.payment_method==='cash'?'Cash at campus handover':'Mobile banking / QR transfer' %></p>
+    <p class="mb-1"><strong>Payment status:</strong> <span class="status-pill"><%= r.payment_status.replaceAll('_',' ') %></span></p>
+    <% if (r.status==='accepted' && r.payment_status==='awaiting_payment') { %>
+      <form method="POST" action="/requests/<%= r.id %>/payment" class="mt-2">
+        <input type="hidden" name="action" value="buyer_paid">
+        <button class="btn btn-sm btn-outline-success">I have paid</button>
+      </form>
+      <small class="text-muted d-block mt-1">Only click after handing over cash or completing the transfer.</small>
+    <% } else if (r.payment_status==='buyer_marked_paid') { %>
+      <small class="text-muted d-block mt-2">Waiting for the seller to confirm receipt.</small>
+    <% } %>
+  </div>
+  <div class="request-actions">
+    <span class="status-pill status-<%= r.status %>"><%= r.status %></span>
+    <% if (['pending','accepted'].includes(r.status)) { %>
+      <form method="POST" action="/requests/<%= r.id %>/status"><input type="hidden" name="status" value="cancelled"><button class="btn btn-sm btn-outline-danger mt-2">Cancel request</button></form>
+    <% } %>
+  </div>
+</article>
+<% }) %>
+<% if (!requests.length) { %><div class="empty-state">You have not requested any items yet.</div><% } %></div>
+<%- include('partials/footer') %>

@@ -1,0 +1,12 @@
+<%- include('partials/header', {title:'Sell an item'}) %>
+<div class="form-page"><span class="eyebrow">GIVE IT A SECOND LIFE</span><h1>List an item</h1><p class="muted">Add clear details so other campus members know exactly what they are getting.</p>
+<form class="listing-form" method="POST" action="/sell" enctype="multipart/form-data">
+  <label>Item title</label><input class="form-control" name="title" maxlength="150" required placeholder="e.g. Scientific calculator">
+  <label>Category</label><select class="form-select" name="category_id"><option value="">Choose category</option><% categories.forEach(c=> { %><option value="<%= c.id %>"><%= c.name %></option><% }) %></select>
+  <label>Description</label><textarea class="form-control" name="description" rows="5" required placeholder="Describe condition, age, included accessories and any defects."></textarea>
+  <div class="row"><div class="col-md-6"><label>Price (Nu.)</label><input class="form-control" type="number" min="0" step="0.01" name="price" required></div><div class="col-md-6"><label>Condition</label><select class="form-select" name="item_condition"><option>Like New</option><option selected>Good</option><option>Fair</option><option>New</option></select></div></div>
+  <label>Photo (JPG, PNG or WEBP, max 3 MB)</label><input class="form-control" type="file" name="photo" accept="image/png,image/jpeg,image/webp">
+  <div class="form-hint">Meet buyers in a public campus location. Do not list prohibited or unsafe items.</div>
+  <button class="btn btn-maroon mt-3">Publish listing</button>
+</form></div>
+<%- include('partials/footer') %>

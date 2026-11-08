@@ -1,0 +1,10 @@
+<%- include('partials/header', {title:'Explore'}) %>
+<div class="page-title-row"><div><span class="eyebrow">THE MARKETPLACE</span><h1>Explore campus finds</h1><p>Useful things, fair prices, and a new home for pre-loved items.</p></div><a class="btn btn-maroon" href="<%= currentUser ? '/sell' : '/register' %>">＋ Sell an item</a></div>
+<form class="filter-panel" method="GET" action="/products">
+  <input class="form-control" name="q" value="<%= filters.q %>" placeholder="Search by name or description">
+  <select class="form-select" name="category"><option value="">All categories</option><% categories.forEach(c=> { %><option value="<%= c.id %>" <%= String(filters.category)===String(c.id)?'selected':'' %>><%= c.name %></option><% }) %></select>
+  <select class="form-select" name="condition"><option value="">Any condition</option><% ['New','Like New','Good','Fair'].forEach(c=> { %><option <%= filters.condition===c?'selected':'' %>><%= c %></option><% }) %></select>
+  <button class="btn btn-dark">Apply filters</button>
+</form>
+<%- include('partials/product-grid', {items}) %>
+<%- include('partials/footer') %>

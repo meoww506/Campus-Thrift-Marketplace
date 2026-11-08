@@ -1,0 +1,32 @@
+<%- include('partials/header', {title:listing.title}) %>
+<div class="detail-back"><a href="/products">← Back to marketplace</a></div>
+<div class="detail-layout">
+  <div class="detail-image">
+    <% if (listing.image_path) { %><img src="<%= listing.image_path %>" alt="<%= listing.title %>"><% } else { %><div class="image-placeholder large"><span>✧</span><small>CAMPUS FIND</small></div><% } %>
+  </div>
+  <div class="detail-info">
+    <span class="eyebrow"><%= listing.category_name || 'CAMPUS ITEM' %></span>
+    <h1><%= listing.title %></h1>
+    <div class="detail-price">Nu. <%= Number(listing.price).toLocaleString('en-IN') %></div>
+    <div class="detail-meta"><span><%= listing.item_condition %> condition</span><span><%= listing.status %></span></div>
+    <p class="detail-description"><%= listing.description %></p>
+    <div class="seller-box"><div class="seller-avatar"><%= listing.seller_name.charAt(0).toUpperCase() %></div><div><strong><%= listing.seller_name %></strong><small><%= listing.seller_type %> · Campus member</small></div></div>
+    <% if (currentUser && currentUser.id===listing.seller_id) { %><a class="btn btn-outline-dark w-100" href="/dashboard">Manage your listing</a>
+    <% } else if (listing.status==='available') { %>
+      <% if (currentUser) { %>
+        <form action="/products/<%= listing.id %>/request" method="POST" class="request-form"><label class="form-label">Message to seller (optional)</label><textarea name="message" class="form-control" rows="2" placeholder="Hi, I am interested in this item..."></textarea>
+          <label class="form-label mt-3">Preferred payment method</label>
+          <select name="payment_method" class="form-select" required>
+            <option value="cash">Cash at campus handover</option>
+            <option value="mobile_transfer">Mobile banking / QR transfer</option>
+          </select>
+          <small class="text-muted d-block mt-2">This is a manual payment arrangement. The marketplace does not process or verify bank transfers.</small>
+          <button class="btn btn-maroon w-100 mt-3">Request to buy</button></form>
+        <form action="/products/<%= listing.id %>/wishlist" method="POST" class="mt-2"><button class="btn btn-outline-dark w-100"><%= wished?'♥ Saved to wishlist':'♡ Add to wishlist' %></button></form>
+      <% } else { %><a class="btn btn-maroon w-100" href="/login">Sign in to request this item</a><% } %>
+    <% } else { %><div class="alert alert-secondary">This item is <%= listing.status %> and cannot currently be requested.</div><% } %>
+    <% if (currentUser && currentUser.id!==listing.seller_id) { %><details class="report-box"><summary>Report this listing</summary><form action="/products/<%= listing.id %>/report" method="POST"><textarea class="form-control mt-2" name="reason" required placeholder="Tell the admin what seems wrong"></textarea><button class="btn btn-sm btn-outline-danger mt-2">Submit report</button></form></details><% } %>
+    <p class="handover-note">✧ Payment and handover are arranged directly on campus. For mobile banking / QR, exchange payment details directly with the seller and verify the transfer in your own banking app. Never share PINs, passwords or OTPs.</p>
+  </div>
+</div>
+<%- include('partials/footer') %>
