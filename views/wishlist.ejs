@@ -1,5 +1,73 @@
+
 <%- include('partials/header', {title:'Wishlist'}) %>
-<div class="page-title-row"><div><span class="eyebrow">SAVED FOR LATER</span><h1>Your wishlist</h1><p>Keep interesting finds close while you decide.</p></div></div>
-<%- include('partials/product-grid', {items}) %>
-<% if (items.length) { %><div class="mt-4 small text-muted">To remove an item, open its detail page and manage your saved items from there.</div><% } %>
+
+<div class="page-title-row">
+  <div>
+    <span class="eyebrow">SAVED FOR LATER</span>
+    <h1>Your wishlist</h1>
+    <p>Keep interesting finds close while you decide.</p>
+  </div>
+</div>
+
+<% if (items.length) { %>
+  <div class="row g-4">
+    <% items.forEach(item => { %>
+      <div class="col-md-6 col-lg-4">
+        <div class="card h-100">
+
+          <% if (item.image_path) { %>
+            <img
+              src="<%= item.image_path %>"
+              class="card-img-top"
+              alt="<%= item.title %>"
+              style="height:220px; object-fit:cover;"
+            >
+          <% } %>
+
+          <div class="card-body">
+            <h5 class="card-title"><%= item.title %></h5>
+
+            <p class="card-text">
+              Nu. <%= Number(item.price).toFixed(2) %>
+            </p>
+
+            <p class="text-muted small">
+              <%= item.category_name || 'Uncategorized' %>
+            </p>
+
+            <a
+              href="/products/<%= item.id %>"
+              class="btn btn-outline-dark"
+            >
+              View product
+            </a>
+
+            <form
+              action="/wishlist/<%= item.id %>?_method=DELETE"
+              method="POST"
+              class="mt-2"
+            >
+              <button type="submit" class="btn btn-danger w-100">
+                Remove from Wishlist
+              </button>
+            </form>
+
+          </div>
+        </div>
+      </div>
+    <% }); %>
+  </div>
+
+<% } else { %>
+
+  <div class="text-center py-5">
+    <h3>Your wishlist is empty</h3>
+    <p class="text-muted">You haven't saved any products yet.</p>
+    <a href="/products" class="btn btn-dark">
+      Explore Products
+    </a>
+  </div>
+
+<% } %>
+
 <%- include('partials/footer') %>

@@ -1,3 +1,45 @@
-<%- include('../partials/header', {title:'Admin login'}) %>
-<div class="auth-wrap admin-auth"><div class="auth-decoration"><span class="eyebrow">MARKETPLACE CONTROL</span><h1>Keep the campus marketplace safe and useful.</h1><p>Administrator access is separate from student and staff accounts.</p></div><form class="auth-card" method="POST" action="/admin/login"><span class="eyebrow">RESTRICTED ACCESS</span><h2>Admin sign in</h2><label>Admin email</label><input class="form-control" type="email" name="email" required><label>Password</label><input class="form-control" type="password" name="password" required><button class="btn btn-maroon w-100 mt-3">Access dashboard</button></form></div>
+
+<%- include('../partials/header', { title: 'Admin login' }) %>
+
+<div class="auth-wrap admin-auth">
+  <div class="auth-decoration">
+    <span class="eyebrow">MARKETPLACE CONTROL</span>
+
+    <h1>Keep the campus marketplace safe and useful.</h1>
+
+    <p>
+      Administrator access is separate from student and staff accounts.
+    </p>
+  </div>
+
+  <form class="auth-card" method="POST" action="/admin/login">
+    <span class="eyebrow">RESTRICTED ACCESS</span>
+
+    <h2>Admin sign in</h2>
+
+    <label for="email">Admin email</label>
+    <input
+      class="form-control"
+      type="email"
+      id="email"
+      name="email"
+      required
+    >
+
+    <label for="password">Password</label>
+    <input
+      class="form-control"
+      type="password"
+      id="password"
+      name="password"
+      required
+    >
+
+    <button type="submit" class="btn btn-maroon w-100 mt-3">
+      Access dashboard
+    </button>
+  </form>
+</div>
+
 <%- include('../partials/footer') %>
+

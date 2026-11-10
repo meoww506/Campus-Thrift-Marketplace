@@ -121,6 +121,55 @@ app.get('/products/:id', async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
+// ===============================
+// STUDENT AND STAFF LOGIN
+// ===============================
+
+app.get('/login', (req, res) => {
+  res.render('auth/login');
+});
+
+app.post('/login', async (req, res, next) => {
+  try {
+    const email = (req.body.email || '').trim().toLowerCase();
+    const password = req.body.password || '';
+
+    const result = await pool.query(
+      "SELECT * FROM users WHERE email = $1 AND role = 'user'",
+      [email]
+    );
+
+    const user = result.rows[0];
+
+    if (!user || !(await bcrypt.compare(password, user.password_hash))) {
+      setNotice(req, 'Email or password is incorrect.', 'danger');
+      return res.redirect('/login');
+    }
+
+    if (user.is_suspended) {
+      setNotice(
+        req,
+        'Your account is currently suspended. Contact the marketplace administrator.',
+        'danger'
+      );
+      return res.redirect('/login');
+    }
+
+    req.session.user = {
+      id: user.id,
+      full_name: user.full_name,
+      email: user.email,
+      user_type: user.user_type,
+      role: user.role,
+      is_suspended: user.is_suspended
+    };
+
+    res.redirect('/');
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.get('/register', (req,res) => res.render('auth/register'));
 app.post('/register',
   body('full_name').trim().isLength({min:2,max:120}).withMessage('Enter your full name.'),
@@ -145,32 +194,64 @@ app.post('/register',
     }
   }
 );
+// ===============================
+// ADMIN LOGIN
+// ===============================
 
-app.get('/login', (req,res) => res.render('auth/login'));
-app.post('/login', async (req,res,next) => {
-  try {
-    const result = await pool.query('SELECT * FROM users WHERE email=$1', [(req.body.email || '').toLowerCase()]);
-    const user = result.rows[0];
-    if (!user || !(await bcrypt.compare(req.body.password || '', user.password_hash)) || user.role !== 'user') {
-      setNotice(req,'Email or password is incorrect.','danger'); return res.redirect('/login');
-    }
-    if (user.is_suspended) { setNotice(req,'Your account is currently suspended. Contact the marketplace administrator.','danger'); return res.redirect('/login'); }
-    req.session.user = { id:user.id, full_name:user.full_name, email:user.email, user_type:user.user_type, role:user.role, is_suspended:user.is_suspended };
-    res.redirect('/');
-  } catch(e) { next(e); }
+app.get('/admin/login', (req, res) => {
+  res.render('auth/admin-login');
 });
 
-app.get('/admin/login', (req,res) => res.render('auth/admin-login'));
-app.post('/admin/login', async (req,res,next) => {
+app.post('/admin/login', async (req, res, next) => {
   try {
-    const result = await pool.query("SELECT * FROM users WHERE email=$1 AND role='admin'", [(req.body.email || '').toLowerCase()]);
+    const result = await pool.query(
+      "SELECT * FROM users WHERE email = $1 AND role = 'admin'",
+      [(req.body.email || '').trim().toLowerCase()]
+    );
+
     const user = result.rows[0];
-    if (!user || !(await bcrypt.compare(req.body.password || '', user.password_hash))) {
-      setNotice(req,'Admin email or password is incorrect.','danger'); return res.redirect('/admin/login');
+
+    // Check whether the admin account exists and password is correct
+    if (!user || !(await bcrypt.compare(
+      req.body.password || '',
+      user.password_hash
+    ))) {
+      setNotice(
+        req,
+        'Admin email or password is incorrect.',
+        'danger'
+      );
+
+      return res.redirect('/admin/login');
     }
-    req.session.user = { id:user.id, full_name:user.full_name, email:user.email, user_type:user.user_type, role:user.role, is_suspended:false };
+
+    // Check whether the admin account is suspended
+    if (user.is_suspended) {
+      setNotice(
+        req,
+        'This administrator account is suspended.',
+        'danger'
+      );
+
+      return res.redirect('/admin/login');
+    }
+
+    // Create admin session
+    req.session.user = {
+      id: user.id,
+      full_name: user.full_name,
+      email: user.email,
+      user_type: user.user_type,
+      role: user.role,
+      is_suspended: user.is_suspended
+    };
+
+    // Redirect to admin dashboard
     res.redirect('/admin');
-  } catch(e) { next(e); }
+
+  } catch (error) {
+    next(error);
+  }
 });
 
 app.post('/logout', requireLogin, (req,res) => req.session.destroy(() => res.redirect('/')));
@@ -358,7 +439,9 @@ app.get('/admin', requireAdmin, async (req,res,next) => {
       pool.query("SELECT COUNT(*)::int AS n FROM reports WHERE status='open'")
     ]);
     res.render('admin/dashboard',{stats:{users:users.rows[0].n,listings:listings.rows[0].n,requests:requests.rows[0].n,reports:reports.rows[0].n}});
-  } catch(e) { next(e); }
+    } catch (error) {
+    next(error);
+  }
 });
 app.get('/admin/users', requireAdmin, async (req,res,next) => {
   try { const r=await pool.query("SELECT id,full_name,email,user_type,is_suspended,created_at FROM users WHERE role='user' ORDER BY created_at DESC"); res.render('admin/users',{users:r.rows}); }
