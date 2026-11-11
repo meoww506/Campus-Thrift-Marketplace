@@ -12,6 +12,7 @@ const methodOverride = require('method-override');
 const { body, validationResult } = require('express-validator');
 
 const app = express();
+app.set('trust proxy', 1);
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const PORT = process.env.PORT || 3000;
 
@@ -40,11 +41,18 @@ app.use(methodOverride('_method'));
 app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(uploadDir));
 app.use(session({
-  store: new pgSession({ pool, createTableIfMissing: true }),
+  store: new pgSession({ 
+    pool, 
+    createTableIfMissing: true
+   }),
   secret: process.env.SESSION_SECRET || 'development-secret-change-me',
   resave: false,
   saveUninitialized: false,
-  cookie: { httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production', maxAge: 1000 * 60 * 60 * 8 }
+  cookie: { httpOnly: true, 
+    sameSite: 'lax', 
+    secure: process.env.NODE_ENV === 'production', 
+    maxAge: 1000 * 60 * 60 * 8 
+  }
 }));
 
 app.use((req, res, next) => {
@@ -54,16 +62,34 @@ app.use((req, res, next) => {
   next();
 });
 
+
 function requireLogin(req, res, next) {
-  if (!req.session.user) return res.redirect('/login');
+  if (!req.session.user || req.session.user.role !== 'user') {
+    return res.redirect('/login');
+  }
+
   if (req.session.user.is_suspended) {
-    req.session.destroy(() => res.redirect('/login?blocked=1'));
+    req.session.destroy(() => {
+      res.redirect('/login?blocked=1');
+    });
     return;
   }
+
   next();
 }
+
 function requireAdmin(req, res, next) {
-  if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/admin/login');
+  if (!req.session.user || req.session.user.role !== 'admin') {
+    return res.redirect('/admin/login');
+  }
+
+  if (req.session.user.is_suspended) {
+    req.session.destroy(() => {
+      res.redirect('/admin/login');
+    });
+    return;
+  }
+
   next();
 }
 function setNotice(req, message, type='success') { req.session.notice = { message, type }; }
